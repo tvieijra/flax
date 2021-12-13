@@ -98,11 +98,11 @@ class DenseGeneral(Module):
     batch_dims = _normalize_axes(batch_dims, ndim)
     n_axis, n_features = len(axis), len(features)
 
-    def kernel_init_wrap(rng, shape, dtype=jnp.float32):
+    def kernel_init_wrap(rng, shape):
       size_batch_dims = np.prod(shape[:n_batch_dims], dtype=np.int32)
       flat_shape = (np.prod(shape[n_batch_dims:n_axis + n_batch_dims]),
                     np.prod(shape[-n_features:]),)
-      kernel = jnp.concatenate([self.kernel_init(rng, flat_shape, dtype)
+      kernel = jnp.concatenate([self.kernel_init(rng, flat_shape)
                                 for _ in range(size_batch_dims)], axis=0)
       return jnp.reshape(kernel, shape)
 
@@ -123,10 +123,10 @@ class DenseGeneral(Module):
                           precision=self.precision)
     # dot_general output has shape [batch_dims/group_dims] + [feature_dims]
     if self.use_bias:
-      def bias_init_wrap(rng, shape, dtype=jnp.float32):
+      def bias_init_wrap(rng, shape):
         size_batch_dims = np.prod(shape[:n_batch_dims], dtype=np.int32)
         flat_shape = (np.prod(shape[-n_features:]),)
-        bias = jnp.concatenate([self.bias_init(rng, flat_shape, dtype)
+        bias = jnp.concatenate([self.bias_init(rng, flat_shape)
                                 for _ in range(size_batch_dims)], axis=0)
         return jnp.reshape(bias, shape)
 
